@@ -13,15 +13,17 @@ LOG_FILE = os.path.join(LOG_DIR, "app.log")
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.FileHandler(LOG_FILE, encoding="utf-8"), logging.StreamHandler()]
+    handlers=[logging.FileHandler(
+        LOG_FILE, encoding="utf-8"), logging.StreamHandler()]
 )
 logger = logging.getLogger(__name__)
 
 # 配置部分
 IMAGE_TYPES = ('jpeg', 'jpg', 'png', 'gif', 'webp')
-LINK_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "link.json")
+LINK_FILE = os.path.join(os.path.dirname(
+    os.path.abspath(__file__)), "link.json")
 PROXY_HOST = "127.0.0.1"
-PROXY_PORT = 8080
+PROXY_PORT = 8098
 
 
 def ensure_file_exists():
@@ -48,12 +50,16 @@ def set_system_proxy(enable=True):
     """配置系统代理"""
     try:
         reg = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)
-        key = winreg.OpenKey(reg, r"Software\Microsoft\Windows\CurrentVersion\Internet Settings", 0, winreg.KEY_WRITE)
-        winreg.SetValueEx(key, "ProxyServer", 0, winreg.REG_SZ, f"{PROXY_HOST}:{PROXY_PORT}")
-        winreg.SetValueEx(key, "ProxyEnable", 0, winreg.REG_DWORD, 1 if enable else 0)
+        key = winreg.OpenKey(
+            reg, r"Software\Microsoft\Windows\CurrentVersion\Internet Settings", 0, winreg.KEY_WRITE)
+        winreg.SetValueEx(key, "ProxyServer", 0, winreg.REG_SZ,
+                          f"{PROXY_HOST}:{PROXY_PORT}")
+        winreg.SetValueEx(key, "ProxyEnable", 0,
+                          winreg.REG_DWORD, 1 if enable else 0)
         winreg.CloseKey(key)
         winreg.CloseKey(reg)
-        logger.info(f"系统代理已{'启用' if enable else '禁用'}: {PROXY_HOST}:{PROXY_PORT}")
+        logger.info(
+            f"系统代理已{'启用' if enable else '禁用'}: {PROXY_HOST}:{PROXY_PORT}")
     except Exception as e:
         logger.error(f"配置系统代理失败: {str(e)}")
         raise
@@ -85,7 +91,7 @@ def main():
 
 使用说明:
 1. 确保已安装Python和mitmproxy (pip install mitmproxy)
-2. 程序会自动配置系统代理为: 127.0.0.1:8080
+2. 程序会自动配置系统代理为: 127.0.0.1:8098
 3. 在电脑上打开抖音客户端或网页版
 4. 程序会记录所有发现的图片链接并保存到当前目录下的link.json文件
 
@@ -95,7 +101,7 @@ def main():
     ensure_file_exists()
     set_system_proxy(enable=True)
     from mitmproxy.tools.main import mitmdump
-    mitmdump(['-s', __file__])
+    mitmdump(['-s', __file__, '--mode', 'regular@8098'])
     input("按 Enter 键退出...")
 
 
